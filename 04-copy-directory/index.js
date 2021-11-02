@@ -26,6 +26,7 @@ fs.readdir(distFiles, { withFileTypes: true }, (error, files) => {
   for (let file of files) {
     const currentFile = file.name.toString();
     stdout.write(`File ${file.name} completed!\n`);
+    if (files[files.length - 1] === file) stdout.write(`${sym.repeat(40)}\n`);
     promise.copyFile(path.join(__dirname, 'files', currentFile), path.join(__dirname, 'files-copy', currentFile))
       .catch(error => {
         if (error) throw error;
@@ -33,4 +34,4 @@ fs.readdir(distFiles, { withFileTypes: true }, (error, files) => {
   }
 })
 
-stdout.write(`${sym.repeat(60)}\n`);
+stdout.write(`${sym.repeat(40)}\n`);

@@ -4,4 +4,3 @@ const { stdout } = process;
 
 const stream = fs.createReadStream(path.join(__dirname, 'text.txt'), 'utf-8');
 stream.on('data', data => stdout.write(data));
-stream.on('error', error => stdout.write('Error', error.message));
