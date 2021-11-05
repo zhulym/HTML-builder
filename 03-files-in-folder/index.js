@@ -12,7 +12,7 @@ fs.readdir(path.join(__dirname, 'secret-folder'), { withFileTypes: true }, (erro
       const extension = path.extname(file.name).slice(1);
       fs.stat(path.join(__dirname, 'secret-folder', file.name), (error, stats) => {
         if (error) throw error;
-        const size = stats.size * 0.001;
+        const size = (stats.size * 0.001).toFixed(3);
         stdout.write(`${name} - ${extension} - ${size}kb\n`);
         if (files[files.length - 1] === file) stdout.write(`${sym.repeat(30)}\n`);
       })
