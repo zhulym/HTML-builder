@@ -1,11 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-
 const dist = path.join(__dirname, 'project-dist');
 const pathDistHtml = path.join(__dirname, 'project-dist', 'index.html');
 const pathStyles = path.join(__dirname, 'styles');
 const pathDistStyle = path.join(__dirname, 'project-dist', 'style.css');
 const pathAssets = path.join(__dirname, 'assets');
+const pathDistAssets = path.join(__dirname, 'project-dist', 'assets');
 
 fs.mkdir(dist, { recursive: true }, error => {
   if (error) throw error;
@@ -66,6 +66,38 @@ fs.readdir(pathStyles, { withFileTypes: true }, (error, files) => {
           })
         }
       })
+    }
+  }
+})
+
+fs.readdir(pathAssets, { withFileTypes: true }, (error, files) => {
+  if (error) throw error;
+  fs.mkdir(pathDistAssets, { recursive: true }, error => {
+    if (error) throw error;
+  });
+
+  for (let file of files) {
+    copyAssets(file);
+    function copyAssets(fl) {
+      if (fl.isFile()) {
+        fs.readFile(`${pathAssets}/${file.name}/${fl.name}`, "utf-8", (error, data) => {
+          if (error) throw error;
+          else {
+            fs.writeFile(`${pathDistAssets}/${file.name}/${fl.name}`, data, "utf-8", error => {
+              if (error) throw error;
+            });
+          }
+        });
+      } else {
+        fs.mkdir(`${pathDistAssets}/${fl.name}`, { recursive: true }, error => {
+          if (error) throw error;
+        });
+        const nextPath = path.join(__dirname, `assets/${fl.name}`);
+        fs.readdir(nextPath, { withFileTypes: true }, (error, data) => {
+          if (error) throw error;
+          data.forEach(el => copyAssets(el));
+        });
+      }
     }
   }
 })
