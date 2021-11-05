@@ -2,9 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 const dist = path.join(__dirname, 'project-dist');
-const pathAssets = path.join(__dirname, 'assets');
-const pathStyles = path.join(__dirname, 'styles');
 const pathDistHtml = path.join(__dirname, 'project-dist', 'index.html');
+const pathStyles = path.join(__dirname, 'styles');
+const pathDistStyle = path.join(__dirname, 'project-dist', 'style.css');
+const pathAssets = path.join(__dirname, 'assets');
 
 fs.mkdir(dist, { recursive: true }, error => {
   if (error) throw error;
@@ -49,3 +50,22 @@ fs.readFile(pathDistHtml, "utf-8", (error, data) => {
   });
 });
 
+
+fs.writeFile(pathDistStyle, '', error => {
+  if (error) throw error;
+})
+fs.readdir(pathStyles, { withFileTypes: true }, (error, files) => {
+  if (error) throw error;
+  for (let file of files) {
+    if (path.extname(file.name) === '.css') {
+      fs.readFile(`${pathStyles}/${file.name}`, 'utf-8', (error, data) => {
+        if (error) throw error;
+        else {
+          fs.appendFile(pathDistStyle, data, error => {
+            if (error) throw error;
+          })
+        }
+      })
+    }
+  }
+})
