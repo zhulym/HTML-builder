@@ -39,17 +39,18 @@ fs.readFile(pathDistHtml, "utf-8", (error, data) => {
       if (error) throw error;
     });
   });
-  fs.readFile(path.join(__dirname, 'components', 'about.html'), "utf-8", (error, about) => {
+  fs.access("06-build-page/components/about.html", (error) => {
     if (!error) {
-      data = data.replace("{{about}}", about);
-      fs.writeFile(pathDistHtml, data, "utf-8", (error) => {
+      fs.readFile(path.join(__dirname, 'components', 'about.html'), "utf-8", (error, about) => {
         if (error) throw error;
-      });
-    } else return;
-    if (error) throw error;
-  });
+        data = data.replace("{{about}}", about);
+        fs.writeFile(pathDistHtml, data, "utf-8", (error) => {
+          if (error) throw error;
+        })
+      })
+    }
+  })
 });
-
 
 fs.writeFile(pathDistStyle, '', error => {
   if (error) throw error;
@@ -70,12 +71,14 @@ fs.readdir(pathStyles, { withFileTypes: true }, (error, files) => {
   }
 })
 
+
+
+
 fs.readdir(pathAssets, { withFileTypes: true }, (error, files) => {
   if (error) throw error;
   fs.mkdir(pathDistAssets, { recursive: true }, error => {
     if (error) throw error;
   });
-
   for (let file of files) {
     copyAssets(file);
     function copyAssets(fl) {
@@ -83,9 +86,9 @@ fs.readdir(pathAssets, { withFileTypes: true }, (error, files) => {
         fs.readFile(`${pathAssets}/${file.name}/${fl.name}`, "utf-8", (error, data) => {
           if (error) throw error;
           else {
-            fs.writeFile(`${pathDistAssets}/${file.name}/${fl.name}`, data, "utf-8", error => {
-              if (error) throw error;
-            });
+            fs.createReadStream(`${pathAssets}/${file.name}/${fl.name}`).pipe(
+              fs.createWriteStream(`${pathDistAssets}/${file.name}/${fl.name}`)
+            );
           }
         });
       } else {
@@ -95,6 +98,7 @@ fs.readdir(pathAssets, { withFileTypes: true }, (error, files) => {
         const nextPath = path.join(__dirname, `assets/${fl.name}`);
         fs.readdir(nextPath, { withFileTypes: true }, (error, data) => {
           if (error) throw error;
+          const pathDistAssets = path.join(__dirname, `project-dist/assets/${fl.name}`);
           data.forEach(el => copyAssets(el));
         });
       }
